@@ -209,6 +209,8 @@ along with this software (see the LICENSE.md file). If not, see
             titleTemplate="Process Pay Completed for Payroll Period ${parameters.timePeriodId} for pay date ${ec.l10n.format(results.payDate, '')}, total pay ${ec.l10n.format(results.totalPayAmount, '0.00')}"
             errorTitleTemplate="Error in Process Pay for Payroll Period ${parameters.timePeriodId}: ${serviceCallRun.errors}"
             linkTemplate=""/>
+    <moqui.basic.LocalizedEntityField entityName="moqui.security.user.NotificationTopic" fieldName="description" pkValue="Payroll Period Process Pay Completed" locale="zh_CN" localized="工资单周期支付处理完成"/>
+
     <moqui.service.job.ServiceJob jobName="ProcessTimePeriodPay" description="Process Pay for Payroll Period"
             serviceName="mantle.humanres.PayrollServices.process#TimePeriodPay" topic="ProcessTimePeriodPay"/>
 
