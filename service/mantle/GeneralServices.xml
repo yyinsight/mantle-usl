@@ -160,45 +160,11 @@ along with this software (see the LICENSE.md file). If not, see
 
             <!-- Product(s) -->
             <set field="productList" from="[]"/>
-            <entity-find-one entity-name="mantle.product.Product" value-field="product">
-                <field-map field-name="productId" from="lookupId"/></entity-find-one>
             <if condition="product != null"><script>productList.add(product)</script></if>
-            <entity-find-one entity-name="mantle.product.Product" value-field="productByPseudo">
-                <field-map field-name="pseudoId" from="lookupId"/></entity-find-one>
             <if condition="productByPseudo != null &amp;&amp; productByPseudo.productId != product?.productId">
                 <if condition="product == null"><set field="product" from="productByPseudo"/></if>
                 <script>productList.add(productByPseudo)</script>
             </if>
-            <entity-find entity-name="mantle.product.ProductIdentification" list="productIdentList">
-                <econdition field-name="idValue" from="lookupId"/>
-                <order-by field-name="productId"/>
-            </entity-find>
-            <entity-find entity-name="mantle.product.ProductOtherIdentification" list="productOtherIdentList">
-                <econdition field-name="idValue" from="lookupId"/>
-                <order-by field-name="productId"/>
-            </entity-find>
-            <iterate list="(productIdentList + productOtherIdentList)" entry="productIdent">
-                <entity-find-one entity-name="mantle.product.Product" value-field="productByIdent">
-                    <field-map field-name="productId" from="productIdent?.productId"/></entity-find-one>
-                <if condition="productByIdent != null">
-                    <if condition="product == null"><set field="product" from="productByIdent"/></if>
-                    <script>productList.add(productByIdent)</script>
-                </if>
-            </iterate>
-            <if condition="product != null"><set field="productId" from="product.productId"/></if>
-
-            <!-- Shipment -->
-            <entity-find-one entity-name="mantle.shipment.Shipment" value-field="shipment">
-                <field-map field-name="shipmentId" from="lookupId"/></entity-find-one>
-            <if condition="shipment == null">
-                <entity-find-one entity-name="mantle.shipment.Shipment" value-field="shipment">
-                    <field-map field-name="externalId" from="lookupId"/></entity-find-one>
-            </if>
-            <if condition="shipment == null">
-                <entity-find-one entity-name="mantle.shipment.Shipment" value-field="shipment">
-                    <field-map field-name="originId" from="lookupId"/></entity-find-one>
-            </if>
-            <if condition="shipment != null"><set field="shipmentId" from="shipment.shipmentId"/></if>
 
             <!-- WorkEffort -->
             <entity-find-one entity-name="mantle.work.effort.WorkEffort" value-field="workEffort">
@@ -228,19 +194,6 @@ along with this software (see the LICENSE.md file). If not, see
                 <!-- apply if there if a Product or Party filter -->
                 <!-- NOTE: using entityFilterSetId is a hack that only works for these 'standard' filter sets, would be
                     better to pick apart filterMap to see what's used, but this is specific to activeOrgId and filterOrgIds anyway -->
-                <set field="findFilters" from="ec.artifactExecution.getFindFiltersForUser('mantle.product.Product')"/>
-                <if condition="findFilters"><set field="entityFilterSetId" from="findFilters[0].entityFilterSetId"/></if>
-                <if condition="!entityFilterSetId">
-                    <set field="findFilters" from="ec.artifactExecution.getFindFiltersForUser('mantle.party.Party')"/>
-                    <if condition="findFilters"><set field="entityFilterSetId" from="findFilters[0].entityFilterSetId"/></if>
-                </if>
-                <script><![CDATA[
-                    if ('MANTLE_USER_ORG'.equals(entityFilterSetId)) {
-                        queryString = (queryString ? queryString + ' AND ' : '' ) + 'ownerPartyId:(' + filterOrgIds.join(' OR ') + ')'
-                    } else if ('MANTLE_ACTIVE_ORG'.equals(entityFilterSetId) && activeOrgId) {
-                        queryString = (queryString ? queryString + ' AND ' : '' ) + 'ownerPartyId:(' + activeOrgId + ' OR _NA_)'
-                    }
-                ]]></script>
             </then><else-if condition="documentType == 'MantleParty'">
                 <set field="findFilters" from="ec.artifactExecution.getFindFiltersForUser('mantle.party.Party')"/>
                 <if condition="findFilters"><set field="entityFilterSetId" from="findFilters[0].entityFilterSetId"/></if>
@@ -252,7 +205,6 @@ along with this software (see the LICENSE.md file). If not, see
                     }
                 ]]></script>
             </else-if><else-if condition="documentType == 'MantleProduct'">
-                <set field="findFilters" from="ec.artifactExecution.getFindFiltersForUser('mantle.product.Product')"/>
                 <if condition="findFilters"><set field="entityFilterSetId" from="findFilters[0].entityFilterSetId"/></if>
                 <script><![CDATA[
                     if ('MANTLE_USER_ORG'.equals(entityFilterSetId)) {
